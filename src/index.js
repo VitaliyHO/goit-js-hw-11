@@ -1,60 +1,66 @@
-import './css/styles.css';
-import { fetchCountries } from './JS/fetchCountries';
-import debounce from 'lodash.debounce';
-import Notiflix from 'notiflix';
+'use strict'
 
-const DEBOUNCE_DELAY = 300;
-const input = document.querySelector('#search-box');
-const countryDesc = document.querySelector('.country-info');
-const countryList = document.querySelector('.country-list');
+const axios = require('axios');
 
-Notiflix.Notify.init({position: 'center-top'});
-
-input.addEventListener('input', debounce((event) => {
-    if(!event.target.value){
-        countryDesc.innerHTML = '';
-        return countryList.innerHTML = '';
-    };
-    fetchCountries(event.target.value)
-        .then(countries => {
-            if(countries.length > 10){
-                return Notiflix.Notify.info('Too many matches found. Please enter a more specific name.');
-            }else if(countries.length <= 10 && countries.length > 1){
-                countryDesc.innerHTML = '';
-                return countriesListMarkup(countries);
-            }else if(countries.length === 1){
-                countryList.innerHTML = '';
-                return countryMarkup(countries);
-            }
-            })
-        .catch(error => {
-                countryDesc.innerHTML = '';
-                countryList.innerHTML = '';
-                console.log(error);
-                return Notiflix.Notify.failure("Oops, there is no country with that name");
-        });
-}, DEBOUNCE_DELAY));
-
-function countryMarkup(countries) {
-    const markup = countries.map(country => {
-        return `
-        <img src="${country.flags.svg}" alt="flag" width="30">
-        <h1 class="title">${country.name}</h1>
-        <p><b>Capital:</b> ${country.capital}</p>
-        <p><b>Population:</b> ${country.population}</p>
-        <p><b>Languages:</b> ${country.languages.map(language=> language.name)}</p>`;
-    }
-    ).join('');
-    countryDesc.innerHTML = markup;
+const refs = {
+    form: document.querySelector('.search-form'),
+    gallery: document.querySelector('.gallery'),
+    body: document.querySelector('body'),
 };
 
-function countriesListMarkup(countries) {
-    const markup = countries.map(country => {
-        return `
-        <li class="country-item">
-        <img src="${country.flags.svg}" alt="flag" width="30">
-        <p>${country.name}</p>
-        </li>`
-    }).join('');
-    countryList.innerHTML = markup;
+refs.form.addEventListener('submit', onFormSubmit);
+
+function onFormSubmit(event) {
+    event.preventDefault();
+    const requestValue = event.target.searchQuery.value;
+    console.log(requestValue);
+
+    requestImages(requestValue)
+};
+
+async function requestImages(value) {
+    try {
+        const response = await axios.get(`https://pixabay.com/api/?key=30200952-259b66a9ca61fa361dd8a215b&type=photo&q=${value}&orientation=horizontal&safesearch=true`);
+        // console.log(response.data.hits);
+        const imageArr = response.data.hits
+
+        galleryMarkup(imageArr);
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+
+function galleryMarkup(imageArr) {
+    console.log(imageArr);
+
+    const markup = imageArr.map((element) => {
+        refs.gallery.insertAdjacentHTML('beforeend', 
+        `<div class="photo-card">
+          <img src="${element.webformatURL}" alt="${element.tags}" loading="lazy" />
+          <div class="info">
+            <p class="info-item">
+              <b>Likes</b>
+              ${element.likes}
+            </p>
+            <p class="info-item">
+              <b>Views</b>
+              ${element.views}
+            </p>
+            <p class="info-item">
+              <b>Comments</b>
+              ${element.comments}
+            </p>
+            <p class="info-item">
+              <b>Downloads</b>
+              ${element.downloads}
+            </p>
+          </div>
+        </div>`)
+    });
+    console.log(markup);
+
 }
+
+
+// {webformatURL, tags, likes, views, comments, downloads} = 
