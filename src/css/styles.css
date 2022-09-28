@@ -1,0 +1,36 @@
+*{
+    box-sizing: border-box;
+}
+
+body{
+    font-family: sans-serif;
+    font-size: 12px;
+}
+
+.gallery{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.photo-card{
+    margin: 10px;
+    border: 1px solid #2e2e2e;
+    border-radius: 8px;
+}
+
+.info{
+    display: flex;
+    justify-content: space-around;
+}
+
+.info-item{
+    text-align: center;
+}
+
+.info-item b{
+    display: block;
+}
+
+.load-more-btn{
+    display: none;
+}
