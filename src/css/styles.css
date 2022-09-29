@@ -31,6 +31,6 @@ body{
     display: block;
 }
 
-.load-more-btn{
+.hidden{
     display: none;
 }
