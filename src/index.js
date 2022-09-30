@@ -13,14 +13,14 @@ const refs = {
 };
 
 let pageNumber = 0;
-
-galleryViewer = new SimpleLightbox('.gallery a', { uniqueImages: false })
+let showMessage;
 
 refs.form.addEventListener('submit', onFormSubmit);
 
 function onFormSubmit(event) {
   event.preventDefault();
   refs.gallery.innerHTML = '';
+  showMessage = true;
   loadMoreBtnHide();
   if (event.target.searchQuery.value === '') {
     return Notiflix.Notify.info("Please input what your search.");
@@ -47,7 +47,9 @@ async function requestImages(value) {
     if (imageArr.length < 40) {
       return loadMoreBtnHide();
     }
-    Notiflix.Notify.success(`Hooray! We found ${response.data.totalHits} images.`);
+    if(showMessage){
+      Notiflix.Notify.success(`Hooray! We found ${response.data.totalHits} images.`);
+    };
     new SimpleLightbox('.gallery a'); 
   } catch (error) {
     console.log(error);
@@ -90,6 +92,7 @@ refs.loadMoreBtn.addEventListener('click', onLoadMoreBtnClick);
 
 function onLoadMoreBtnClick() {
   pageNumber += 1;
+  showMessage = false;
   const requestValue = refs.form.searchQuery.value;
   requestImages(requestValue);
 };
