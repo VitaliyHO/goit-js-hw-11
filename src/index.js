@@ -34,7 +34,6 @@ function onFormSubmit(event) {
 async function requestImages(value) {
   try {
     const response = await axios.get(`https://pixabay.com/api/?key=30200952-259b66a9ca61fa361dd8a215b&type=photo&q=${value}&orientation=horizontal&safesearch=true&per_page=40&page=${pageNumber}`);
-    // console.log(response.data.hits);
     const imageArr = response.data.hits
     if (imageArr.length === 0) {
       loadMoreBtnHide();
