@@ -14,8 +14,6 @@ const refs = {
 
 let pageNumber = 0;
 
-galleryViewer = new SimpleLightbox('.gallery a', { uniqueImages: false })
-
 refs.form.addEventListener('submit', onFormSubmit);
 
 function onFormSubmit(event) {
