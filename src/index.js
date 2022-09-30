@@ -1,5 +1,8 @@
 'use strict'
 
+import Notiflix from 'notiflix';
+import SimpleLightbox from "simplelightbox";
+import "simplelightbox/dist/simple-lightbox.min.css";
 const axios = require('axios');
 
 const refs = {
@@ -11,14 +14,16 @@ const refs = {
 
 let pageNumber = 0;
 
+galleryViewer = new SimpleLightbox('.gallery a', { uniqueImages: false })
+
 refs.form.addEventListener('submit', onFormSubmit);
 
 function onFormSubmit(event) {
   event.preventDefault();
   refs.gallery.innerHTML = '';
+  loadMoreBtnHide();
   if (event.target.searchQuery.value === '') {
-    loadMoreBtnHide();
-    return console.log('empty input field');
+    return Notiflix.Notify.info("Please input what your search.");
   }
   const requestValue = event.target.searchQuery.value;
   pageNumber = 1;
@@ -33,7 +38,7 @@ async function requestImages(value) {
     const imageArr = response.data.hits
     if (imageArr.length === 0) {
       loadMoreBtnHide();
-      return console.log("FAIL!!!!");
+      return Notiflix.Notify.failure("Sorry, there are no images matching your search query. Please try again.");
     };
 
     galleryMarkup(imageArr);
@@ -42,19 +47,21 @@ async function requestImages(value) {
     if (imageArr.length < 40) {
       return loadMoreBtnHide();
     }
+    Notiflix.Notify.success(`Hooray! We found ${response.data.totalHits} images.`);
+    new SimpleLightbox('.gallery a'); 
   } catch (error) {
     console.log(error);
+    Notiflix.Notify.warning("We're sorry, but you've reached the end of search results.");
     return loadMoreBtnHide();
   }
 };
 
 
 function galleryMarkup(imageArr) {
-  console.log(imageArr);
-
   const markup = imageArr.map((element) => {
     refs.gallery.insertAdjacentHTML('beforeend',
-      `<div class="photo-card">
+      `<a href="${element.largeImageURL}">
+        <div class="photo-card">
           <img src="${element.webformatURL}" alt="${element.tags}" loading="lazy" width="250" height="150"/>
           <div class="info">
             <p class="info-item">
@@ -74,7 +81,8 @@ function galleryMarkup(imageArr) {
               ${element.downloads}
             </p>
           </div>
-        </div>`)
+        </div>
+      </a>`)
   });
 };
 
@@ -92,6 +100,4 @@ function loadMoreBtnHide() {
 
 function loadMoreBtnShow() {
   refs.loadMoreBtn.classList.remove('hidden');
-}
-
-// {webformatURL, tags, likes, views, comments, downloads} = 
+};
